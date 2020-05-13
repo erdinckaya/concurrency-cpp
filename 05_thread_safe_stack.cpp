@@ -3,9 +3,9 @@
 
 // Lets create a thread safe stack.
 
-#define SECOND 0
-#define THIRD 0
-#define FOURTH 0
+#define SECOND  0
+#define THIRD   0
+#define FOURTH  0
 
 // So the main idea is we have to protect our data when other threads want to modify it.
 // That is why we added the lock guard when data is pushed or popped.
