@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(advanced-templates)
+project(concurrency-cpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -8,3 +8,4 @@ add_executable(data_race 01_data_race.cpp)
 add_executable(mutex 02_mutex.cpp)
 add_executable(dead_lock 03_dead_lock.cpp)
 add_executable(lock_guard 04_lock_guard.cpp)
+add_executable(thread_safe_stack 05_thread_safe_stack.cpp)
