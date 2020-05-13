@@ -1,9 +1,11 @@
 #include <stack>
 #include <mutex>
+
 // Lets create a thread safe stack.
 
 #define SECOND 0
 #define THIRD 0
+#define FOURTH 0
 
 // So the main idea is we have to protect our data when other threads want to modify it.
 // That is why we added the lock guard when data is pushed or popped.
@@ -31,23 +33,59 @@ struct Stack {
 #endif
 #if THIRD
   // We have to overload our fucntion. In order to prevent unnecessary data copy we are taking T ref parameter.
-  void pop(T &v) {
+  bool pop(T &v) {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_data.empty()) {
-      throw std::runtime_error("Stack is empty!");
+      return false;
     }
     v = m_data.top();
     m_data.pop();
+    return true;
   }
 #endif
-  void pop() {
+  bool pop() {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_data.empty()) {
-      throw std::runtime_error("Stack is empty!");
+      return false;
     }
     m_data.pop();
+    return true;
   }
 
+  void push(const T &t) {
+    std::lock_guard<std::mutex> guard(m_mutex);
+    m_data.emplace(t);
+  }
+
+#if FOURTH
+  // Since any thread can change the state of the stack just after we check the size or empty, we cannot trust them.
+  // Instead of we have to define new ones. In a nutshell we have to combine our check and modification in one critical
+  // section to make sure there will be no conflict.
+  bool push_if_size(size_t size, const T& t)
+  {
+    std::lock_guard<std::mutex> guard(m_mutex);
+    if (m_data.size() == size)
+    {
+      m_data.emplace(t);
+      return true;
+    }
+    return false;
+  }
+
+  bool pop_if_size(size_t size, T& t)
+  {
+    std::lock_guard<std::mutex> guard(m_mutex);
+    if (m_data.size() == size)
+    {
+      if (m_data.empty()) {
+        return false;
+      }
+      t = m_data.top();
+      m_data.pop();
+    }
+    return false;
+  }
+#endif
   size_t size() const
   {
     std::lock_guard<std::mutex> guard(m_mutex);
@@ -60,10 +98,7 @@ struct Stack {
     return m_data.empty();
   }
 
-  void push(T &&t) {
-    std::lock_guard<std::mutex> guard(m_mutex);
-    m_data.emplace(std::forward(t));
-  }
+
 
  private:
   std::stack<T> m_data;
