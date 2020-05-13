@@ -82,6 +82,7 @@ struct Stack {
       }
       t = m_data.top();
       m_data.pop();
+      return true;
     }
     return false;
   }
