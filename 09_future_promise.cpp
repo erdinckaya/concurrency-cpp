@@ -12,7 +12,7 @@ struct NetworkData {
 };
 
 long accumulate(std::future<NetworkData> &future) {
-  // Thread will be waited untill data comes.
+  // Thread will be waited until data comes.
   auto networkData = future.get();
   long res = 0;
   for (int i = networkData.start; i < networkData.end; ++i) {
